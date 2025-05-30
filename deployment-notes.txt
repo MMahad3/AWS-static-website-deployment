@@ -1,0 +1,87 @@
+# 📄 Deployment Notes - Static Website on AWS S3 + CloudFront
+
+---
+
+🗓 Date: 2025-05-29  
+👤 Deployed by: Mahad Munir  
+💻 Project: Static Site Hosting with HTTPS (No custom domain)
+
+---
+
+## ✅ Steps Followed
+
+1. Created S3 bucket named: `my-static-site-demo`
+2. Enabled **Static Website Hosting** on the bucket
+   - Index document: index.html
+   - Error document: (left blank or error.html)
+3. Uploaded files:
+   - index.html
+   - index.css
+   - index.js
+
+4. Verified site works via S3 website endpoint
+
+---
+
+## 🔐 Secured the Bucket
+
+- Turned on: `Block all public access`
+- Removed any existing public bucket policy
+
+---
+
+## 🔧 Created Origin Access Control (OAC)
+
+- Go to: CloudFront > Security > Origin Access Control
+- Created new OAC:
+  - Name: `S3-OAC`
+  - Signing behavior: Always
+  - Origin type: S3
+
+---
+
+## 🌍 Created CloudFront Distribution
+
+- Origin domain: selected S3 bucket `.s3.amazonaws.com`
+- Origin access: `Origin access control settings`
+- Selected OAC: `S3-OAC`
+- Enabled: Redirect HTTP to HTTPS
+- Default root object: `index.html`
+
+✅ Status: Created and Deployed  
+🌐 CloudFront URL: `https://dXXXXXXXXXXXX.cloudfront.net`
+
+---
+
+## ❌ Error Faced
+
+### ❗ AccessDenied Error on CloudFront
+- Cause: S3 bucket policy didn’t allow CloudFront to access
+- Fix:
+  - Manually added bucket policy with:
+    - `cloudfront.amazonaws.com` principal
+    - Correct SourceArn (CloudFront distribution)
+    - Correct bucket ARN
+
+✅ Resolved: CloudFront can now read files from private S3 bucket
+
+---
+
+## 🔐 Final Security
+
+- S3: Public access fully blocked
+- Only CloudFront (OAC) has read access
+- No direct access via S3 URL
+- Site is served securely via HTTPS (CloudFront)
+
+---
+
+## 🔧 Useful Commands
+
+### Git Init and Push
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/your-username/aws-static-website-cloudfront.git
+git push -u origin main
